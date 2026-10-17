@@ -577,7 +577,7 @@
   <p class="eyebrow">Photo export</p>
   <h3 id="photoTitle">Your studio shot</h3>
   <img id="photoImg" alt="Exported render of the cake">
-  <p class="note" style="margin-top:10px">If the download does not start, right-click or long-press the image and choose Save image.</p>
+  <p class="note" style="margin-top:10px" id="photoNote">If the download does not start, right-click or long-press the image and choose Save image.</p>
   <div class="actions">
     <button class="btn" id="photoClose">Close</button>
     <a class="btn primary" id="photoDownload" download="cake-studio.png" href="#">Download PNG</a>
@@ -3943,8 +3943,9 @@ function exportPhoto() {
   let url;
   try { url = renderer.domElement.toDataURL('image/png'); } catch (err) { toast('The browser blocked the export. Try a local server instead of file://.'); return; }
   document.getElementById('photoImg').src = url;
-  const a = document.getElementById('photoDownload'); a.href = url;
+  const a = document.getElementById('photoDownload'); if (a) a.href = url;
   document.getElementById('photoPreview').hidden = false;
+  if (window.__noDownload) return;
   try { const tmp = document.createElement('a'); tmp.href = url; tmp.download = 'cake-studio.png'; document.body.appendChild(tmp); tmp.click(); tmp.remove(); } catch (err) { /* sandboxed viewers block downloads; the preview stays */ }
 }
 
@@ -4225,6 +4226,7 @@ function bindUI() {
   $('resetAll').addEventListener('click', () => { const d = $('confirmReset'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); $('confirmCancel').focus(); });
   $('confirmCancel').addEventListener('click', () => $('confirmReset').close());
   $('confirmOk').addEventListener('click', () => { $('confirmReset').close(); resetAll(); });
+  if (window.__noDownload) { $('photoDownload')?.remove(); $('photoNote').textContent = 'Right-click or long-press the image and choose Save image.'; }
   if (IS_MOBILE) { $('panel').classList.add('collapsed'); $('panelToggle').textContent = 'Controls'; $('panelToggle').setAttribute('aria-expanded', 'false'); }
 }
 /** Largest freshly cut face with a clear line of sight (siblings 4.5 mm away hide each other's faces). */
